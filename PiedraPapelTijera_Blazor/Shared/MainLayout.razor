@@ -11,7 +11,20 @@
         </div>
 
         <article class="content px-4">
-            @Body
+            <CascadingValue Value = "@appStage">
+                @Body
+            </CascadingValue>
+            
         </article>
     </main>
 </div>
+
+@code{
+    AppStage appStage = new AppStage();
+    public class AppStage
+    {
+        public string Color { get; set; } = "black";
+        public string Size { get; set; } = "30px";
+
+    }
+}

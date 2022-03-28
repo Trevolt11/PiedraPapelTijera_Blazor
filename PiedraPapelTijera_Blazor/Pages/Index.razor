@@ -1,9 +1,20 @@
 ﻿@page "/"
+@using static PiedraPapelTijera_Blazor.Shared.MainLayout
 
-<PageTitle>Index</PageTitle>
+<ModificadorDeStyleBox>
+    <ChildContent>
+            <h1 style="color : @appStage.Color;  font-size: @appStage.Size"> Juego, piedra, papel o tijera </h1>
+    </ChildContent>
+</ModificadorDeStyleBox>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+
+    protected override bool ShouldRender()
+    {
+        return base.ShouldRender();
+    }
+
+        [CascadingParameter] private AppStage appStage { get; set; }
+}
