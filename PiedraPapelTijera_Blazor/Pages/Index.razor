@@ -1,20 +1,173 @@
 ﻿@page "/"
 @using static PiedraPapelTijera_Blazor.Shared.MainLayout
+@using System.Timers
+@implements IDisposable
+
+
 
 <ModificadorDeStyleBox>
     <ChildContent>
-            <h1 style="color : @appStage.Color;  font-size: @appStage.Size"> Juego, piedra, papel o tijera </h1>
+        @if (!string.IsNullOrEmpty(resultadoMensaje))
+        {
+            <h3 style="color : @appStage.Color">@resultadoMensaje</h3>
+        }
+
+        <h1 style="color : @appStage.Color;  font-size: @appStage.Size"> Juego, piedra, papel o tijera </h1>
     </ChildContent>
 </ModificadorDeStyleBox>
+
+<button class="btn btn-info" @onclick="Reinicia">Reintentar</button>
+
+<div style="display : flex; justify-content : center; margin-bottom : 20px">
+    <img src="@jugadaOponente.Imagenes" class="imagen" />
+</div>
+
+<div style="display : flex; justify-content : space-around">
+
+    @foreach (var jugadaFor in jugadas)
+    {
+        <img src="@jugadaFor.Imagenes" class="imagen imagen-seleccionable" @onclick="@(() => SeleccionarJugada(jugadaFor))" />
+    }
+
+    @*    <img src="papel.jpg" class="imagen imagen-seleccionable" />
+        <img src="tijera.jpg" class="imagen imagen-seleccionable" />
+        <img src="piedra.png" class="imagen imagen-seleccionable" />*@
+
+</div>
 
 
 
 @code {
 
+
+    // Reload style
     protected override bool ShouldRender()
     {
         return base.ShouldRender();
     }
+    [CascadingParameter] private AppStage appStage { get; set; }
+    //**/
 
-        [CascadingParameter] private AppStage appStage { get; set; }
+
+
+    List<Jugada> jugadas = new List<Jugada>()
+    {
+        new Jugada{
+            opciones = Opciones.Piedra,
+            Imagenes = "piedra.png",
+            PierdeContra = Opciones.Papel,
+            venceA = Opciones.Tijera},
+
+        new Jugada{
+            opciones = Opciones.Papel,
+            Imagenes = "papel.jpg",
+            PierdeContra = Opciones.Tijera,
+            venceA = Opciones.Piedra},
+
+        new Jugada {
+            opciones = Opciones.Tijera,
+            Imagenes = "tijera.jpg",
+            PierdeContra = Opciones.Piedra,
+            venceA = Opciones.Papel}
+
+    };
+
+
+    Timer timer;
+    Jugada jugadaOponente;
+    string resultadoMensaje;
+
+    protected override void OnInitialized()
+    {
+        jugadaOponente = jugadas[0];
+        timer = new Timer();
+        timer.Interval = 500;
+        timer.Elapsed += TimerOnElapse;
+        timer.Start();
+    }
+
+    private void Reinicia()
+    {
+        timer.Start();
+        resultadoMensaje = null;
+    }
+
+    int IndiceJugadaOponente = 0;
+    private void TimerOnElapse(Object sender, ElapsedEventArgs e)
+    {
+        IndiceJugadaOponente = (IndiceJugadaOponente + 1) % jugadas.Count;
+        jugadaOponente = jugadas[IndiceJugadaOponente];
+        StateHasChanged();
+        Console.WriteLine("Timer ejecutado");
+    }
+
+    class Jugada
+    {
+        public Opciones opciones { get; set; }
+        public Opciones venceA { get; set; }
+        public Opciones PierdeContra { get; set; }
+        public string Imagenes { get; set; }
+
+        public EstatusJuego JugarContra(Jugada jugada2)
+        {
+
+            if (opciones == jugada2.opciones)
+            {
+                return EstatusJuego.Empate;
+            }
+
+            if (venceA == jugada2.opciones)
+            {
+                return EstatusJuego.Victoria;
+            }
+            else
+            {
+                return EstatusJuego.Derrota;
+            }
+
+        }
+
+    }
+
+    private void SeleccionarJugada(Jugada jugada)
+    {
+        timer.Stop();
+        var resultado = jugada.JugarContra(jugadaOponente);
+
+        if (resultado == EstatusJuego.Victoria)
+        {
+            resultadoMensaje = "Ganaste!";
+
+        }
+        else if (resultado == EstatusJuego.Derrota)
+        {
+            resultadoMensaje = "Perdiste...";
+
+
+        }
+        else
+        {
+            resultadoMensaje = "Empate!";
+        }
+    }
+
+    enum EstatusJuego
+    {
+        Victoria, Derrota, Empate
+    }
+
+    enum Opciones
+    {
+        Piedra, Papel, Tijera
+    }
+
+    //Evita que se usen recursos innecesarios en la maquina del cliente
+    public void Dispose()
+    {
+        if (timer != null)
+        {
+            timer.Dispose();
+        }
+    }
+
 }

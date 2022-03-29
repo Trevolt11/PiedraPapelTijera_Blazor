@@ -1,8 +1,9 @@
 ﻿@using static PiedraPapelTijera_Blazor.Shared.MainLayout
 
 <div style="display:flex">
-
+    
     <div style="width:150px">
+        <p>EDIT COLOR </p>
         <select @bind="@appStage.Color" class = "form-control" style="margin-to : 15px">
             <option value="black">Black</option>
             <option value="blue">Blue</option>
@@ -12,6 +13,9 @@
        </div>
 
         <div style = "width : 150px"> 
+                     <p>EDIT SIZE</p>
+
+
             <select  @bind="@appStage.Size" class = "form-control" style="margin-to : 15px">
             <option value="12px">12px</option>
             <option value="30px">30px</option>
